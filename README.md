@@ -33,6 +33,8 @@ go build cdnChecker.go
 
 ## 使用
 
+实际测试13361个域名耗时82s
+
 ```
 $ cat domains.txt 
 www.baidu.com
