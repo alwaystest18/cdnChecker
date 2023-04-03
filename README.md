@@ -24,11 +24,8 @@
 
 ```
 git clone https://github.com/alwaystest18/cdnChecker.git
-
 cd cdnChecker/
-
 go install
-
 go build cdnChecker.go
 ```
 
