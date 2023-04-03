@@ -37,10 +37,10 @@ go build cdnChecker.go
 
 ```
 $ cat domains.txt 
-www.baidu.com
-www.qq.com
-www.alibabagroup.com
-aurora.tencent.com
+www.baidu.com        //使用cdn
+www.qq.com        //使用cdn
+www.alibabagroup.com     //使用cdn
+aurora.tencent.com        //未使用cdn
 $ ./cdnChecker -df domains.txt -cf cdn_cname -r resolvers.txt 
 43.137.23.148
 ```
