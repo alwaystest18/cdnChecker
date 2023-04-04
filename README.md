@@ -33,14 +33,34 @@ go build cdnChecker.go
 
 ## 使用
 
-实际测试13361个域名耗时82s
+速度测试：实际测试13361个域名耗时82s
+
+参数说明
+
+```
+Usage of ./cdnChecker:
+  -cf string         //cdn cname文件，默认为同目录cdn_cname
+        cdn cname file (default "cdn_cname")
+  -df string         //域名列表文件，注意为host部分，不要带http://
+        domain list file
+  -o string         //未使用cdn域名输出文件，如果不指定生成在同目录no_cdn_domains+时间.txt
+        output domains that are not using cdn to file (default "no_cdn_domains202304040755.txt")
+  -oc string     //使用cdn域名输出文件，如果不指定生成在同目录use_cdn_domains+时间.txt
+        output domains that are using cdn to file (default "use_cdn_domains202304040755.txt")
+  -oi string    //未使用cdn的ip输出文件，如果不指定生成在同目录no_cdn_ips+时间.txt
+        output ips that are not using cdn to file (default "no_cdn_ips202304040755.txt")
+  -r string       //dns服务器列表文件
+        dns resolvers file
+```
+
+单独使用
 
 ```
 $ cat domains.txt 
 www.baidu.com        //使用cdn
-www.qq.com        //使用cdn
-www.alibabagroup.com     //使用cdn
-aurora.tencent.com        //未使用cdn
+www.qq.com         //使用cdn
+www.alibabagroup.com    //使用cdn
+aurora.tencent.com     //未使用cdn
 $ ./cdnChecker -df domains.txt -cf cdn_cname -r resolvers.txt 
 43.137.23.148
 ```
