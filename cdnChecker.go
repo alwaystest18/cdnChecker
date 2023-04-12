@@ -23,6 +23,7 @@ var validResolversList []string   //可用dns服务器列表
 var noCdnDomains []string      //未使用cdn的域名列表
 var useCdnDomains []string      //使用cdn的域名列表
 var noCdnIps []string         //未使用cdn的ip列表
+var domainInfos []string  //所有域名+对应ip信息记录在此列表中
 var wg sync.WaitGroup
 
 
@@ -76,7 +77,7 @@ func InCdnCnameList(domainCnameList []string, cdnCnameList []string) bool {
 
 
 //获取域名在特定dns上的解析ip，并且以.分割ip，取ip的前三部分，即解析ip为1.1.1.1,最终输出为[1.1.1],便于判断多个ip是否在相同网段
-func resolvDomainIpPart(domain string, resolver string) ([]string, error) {
+func ResolvDomainIpPart(domain string, resolver string) ([]string, error) {
 	var domainIpsPart []string
 	retries := 1
 	resolverList := []string{resolver}
@@ -113,7 +114,7 @@ func UniqueStrList(strList []string) []string {
 }
 
 //生成count个[start,end)结束的不重复的随机数
-func generateRandomNumber(start int, end int, count int) []int {
+func GenerateRandomNumber(start int, end int, count int) []int {
 	//范围检查
 	if end < start || (end-start) < count {
 		return nil
@@ -144,6 +145,7 @@ func generateRandomNumber(start int, end int, count int) []int {
 	return nums
 }
 
+
 //判断域名是否使用cdn
 func CdnCheck(domain string, cdnCnameList []string, resolversList []string) {
 	defer wg.Done()
@@ -169,6 +171,9 @@ func CdnCheck(domain string, cdnCnameList []string, resolversList []string) {
 	dnsxResult, _ := dnsxClient.QueryOne(domain)
 	domainCnameList := dnsxResult.CNAME
 	domainIpList := dnsxResult.A
+	for _, domainIp := range domainIpList {
+		domainInfos = append(domainInfos, domain + ":" + domainIp)
+	}
 
 	if len(domainCnameList) == 0 && len(domainIpList) > 0 {   //无cname但有A记录，直接判定未使用cdn
 		noCdnDomains = append(noCdnDomains, domain)
@@ -178,10 +183,10 @@ func CdnCheck(domain string, cdnCnameList []string, resolversList []string) {
 			useCdnDomains = append(useCdnDomains, domain)
 		} else {
 			var domainIpPartList []string
-			randNums := generateRandomNumber(0, len(resolversList), 30)
+			randNums := GenerateRandomNumber(0, len(resolversList), 30)
 			for _, num := range randNums {
 				resolver := resolversList[num]
-				domainIpsWithResolver, err := resolvDomainIpPart(domain, resolver)
+				domainIpsWithResolver, err := ResolvDomainIpPart(domain, resolver)
 				if err != nil {
 					continue
 				}
@@ -210,11 +215,13 @@ func main() {
 	o := flag.String("o", "no_cdn_domains" + nowTime + ".txt", "output domains that are not using cdn to file")
 	oi := flag.String("oi", "no_cdn_ips" + nowTime + ".txt", "output ips that are not using cdn to file")
 	oc := flag.String("oc", "use_cdn_domains" + nowTime + ".txt", "output domains that are using cdn to file")
+	od := flag.String("od", "domain_info" + nowTime + ".txt", "output domain info(domain:ip) to file")
 	flag.Parse() 
 
 	noCdnDomainsFileName := *o
 	noCdnIpsFileName := *oi
 	useCdnDomainsFileName := *oc
+	domainInfosFileName := *od
 
 	//get domains list
 	domainsListFile := *df
@@ -265,6 +272,7 @@ func main() {
 
 	//未使用cdn域名写入文件
 	if len(noCdnDomains) > 0 {
+		noCdnDomains = UniqueStrList(noCdnDomains)
 		noCdnDomainsFile, _ := os.OpenFile(noCdnDomainsFileName, os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0666)
 		defer noCdnDomainsFile.Close()
 		for _, noCdnDomain := range noCdnDomains {
@@ -286,10 +294,21 @@ func main() {
 
 	//使用cdn域名写入文件
 	if len(useCdnDomains) > 0 {
+		useCdnDomains = UniqueStrList(useCdnDomains)
 		useCdnDomainsFile, _ := os.OpenFile(useCdnDomainsFileName, os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0666)
 		defer useCdnDomainsFile.Close()
 		for _, useCdnDomain := range useCdnDomains {
 			useCdnDomainsFile.WriteString(useCdnDomain + "\n")
+		}
+	}
+
+	//域名+对应ip信息写入文件
+	if len(domainInfos) > 0 {
+		domainInfos = UniqueStrList(domainInfos)
+		domainInfosFile, _ := os.OpenFile(domainInfosFileName, os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0666)
+		defer domainInfosFile.Close()
+		for _, domainInfo := range domainInfos {
+			domainInfosFile.WriteString(domainInfo + "\n")
 		}
 	}
 }
