@@ -47,6 +47,8 @@ Usage of ./cdnChecker:
         output domains that are not using cdn to file (default "no_cdn_domains202304040755.txt")
   -oc string     //使用cdn域名输出文件，如果不指定生成在同目录use_cdn_domains+时间.txt
         output domains that are using cdn to file (default "use_cdn_domains202304040755.txt")
+  -od string     //域名:ip的格式，便于根据ip反查域名，如果不指定生成在同目录domain_info+时间.txt
+        output domain info(domain:ip) to file (default "domain_info202304122222.txt")
   -oi string    //未使用cdn的ip输出文件，如果不指定生成在同目录no_cdn_ips+时间.txt
         output ips that are not using cdn to file (default "no_cdn_ips202304040755.txt")
   -r string       //dns服务器列表文件
