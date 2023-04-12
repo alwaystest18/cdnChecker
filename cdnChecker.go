@@ -23,7 +23,7 @@ var validResolversList []string   //可用dns服务器列表
 var noCdnDomains []string      //未使用cdn的域名列表
 var useCdnDomains []string      //使用cdn的域名列表
 var noCdnIps []string         //未使用cdn的ip列表
-var domainInfos []string  //所有域名+对应ip信息记录在此列表中
+var domainsInfo []string  //所有域名+对应ip信息记录在此列表中
 var wg sync.WaitGroup
 
 
@@ -172,7 +172,7 @@ func CdnCheck(domain string, cdnCnameList []string, resolversList []string) {
 	domainCnameList := dnsxResult.CNAME
 	domainIpList := dnsxResult.A
 	for _, domainIp := range domainIpList {
-		domainInfos = append(domainInfos, domain + ":" + domainIp)
+		domainsInfo = append(domainsInfo, domain + ":" + domainIp)
 	}
 
 	if len(domainCnameList) == 0 && len(domainIpList) > 0 {   //无cname但有A记录，直接判定未使用cdn
@@ -221,7 +221,7 @@ func main() {
 	noCdnDomainsFileName := *o
 	noCdnIpsFileName := *oi
 	useCdnDomainsFileName := *oc
-	domainInfosFileName := *od
+	domainsInfoFileName := *od
 
 	//get domains list
 	domainsListFile := *df
@@ -303,12 +303,12 @@ func main() {
 	}
 
 	//域名+对应ip信息写入文件
-	if len(domainInfos) > 0 {
-		domainInfos = UniqueStrList(domainInfos)
-		domainInfosFile, _ := os.OpenFile(domainInfosFileName, os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0666)
-		defer domainInfosFile.Close()
-		for _, domainInfo := range domainInfos {
-			domainInfosFile.WriteString(domainInfo + "\n")
+	if len(domainsInfo) > 0 {
+		domainsInfo = UniqueStrList(domainsInfo)
+		domainsInfoFile, _ := os.OpenFile(domainsInfoFileName, os.O_TRUNC|os.O_WRONLY|os.O_CREATE, 0666)
+		defer domainsInfoFile.Close()
+		for _, domainInfo := range domainsInfo {
+			domainsInfoFile.WriteString(domainInfo + "\n")
 		}
 	}
 }
