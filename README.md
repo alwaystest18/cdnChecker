@@ -92,9 +92,13 @@ $./cdnChecker -df domains.txt -cf cdn_cname -r resolvers.txt | mapcidr -aggregat
 
 ## 常见问题
 
-结果中使用cdn域名列表与未使用cdn域名列表数量相加与实际测试域名数量不符？
+- 结果中使用cdn域名列表与未使用cdn域名列表数量相加与实际测试域名数量不符？
 
-答：对于无法获取解析ip的域名，程序会默认为域名无效过滤掉
+​       答：对于无法获取解析ip的域名，程序会默认为域名无效过滤掉
+
+- 判定站点使用了cdn，不在cdn的ip范围，不在cdn的cname范围，同时domaininfo文件中对应的也是一个ip
+
+​       答：判定站点是否使用cdn时是参考多个dns服务器解析结果，而写入domaininfo文件获取的ip地址为单个dns服务器解析结果，个别域名会存在多服务器解析多个ip而单服务器仅解析一个ip的情况
 
 
 
