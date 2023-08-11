@@ -84,6 +84,8 @@ func ResolvDomainIpPart(domain string, resolver string) ([]string, error) {
 	dnsResponses, err := dnsClient.Query(domain, dns.TypeA)
 	if err != nil {
 		return domainIpsPart, err
+	} else if In(resolver, dnsResponses.A) { //如果dns的ip出现在查询结果中，判为误报，忽略结果
+		return domainIpsPart, nil
 	}
 	ipsList := dnsResponses.A //[1.1.1.1, 2.2.2.2, 3.3.3.3]
 	if len(ipsList) > 0 {
@@ -148,7 +150,18 @@ func CdnCheck(domain string, cdnCnameList []string, resolversList []string, dnsx
 	isCdn, _, _ := dnsxClient.CdnCheck(domain) //通过dnsx自带方法识别cdn，主要为根据ip范围判断国外主流cdn厂商
 	dnsxResult, _ := dnsxClient.QueryOne(domain)
 	domainCnameList := dnsxResult.CNAME
-	domainIpList := dnsxResult.A
+	tempDomainIpList := dnsxResult.A
+	var domainIpList []string
+
+	if len(tempDomainIpList) > 0 {
+		for _, tempIp := range tempDomainIpList {
+			if !In(tempIp, resolversList) {
+				domainIpList = append(domainIpList, tempIp)
+			}
+		}
+	} else {
+		return
+	}
 
 	if isCdn {
 		useCdnDomains = append(useCdnDomains, domain)
