@@ -244,8 +244,7 @@ func main() {
 	}
 	wg.Wait()
 	if len(validResolversList) < 20 {
-		fmt.Println("The number of valid resolvers is less than 20, please improve it: " + resolversFile)
-		os.Exit(2)
+		fmt.Println("The number of valid resolvers is less than 20, May affect the accuracy of the results")
 	}
 
 	var DefaultOptions = dnsx.Options{
