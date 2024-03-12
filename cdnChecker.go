@@ -32,8 +32,16 @@ func FileContentToList(filePath string) []string {
 		fmt.Println("fail to open file: " + filePath)
 		os.Exit(2)
 	}
-	contentList := strings.Split(string(fileContent), "\n")
-	return contentList
+
+	fileContentStr := strings.ReplaceAll(string(fileContent), "\r\n", "\n")
+	contentList := strings.Split(fileContentStr, "\n")
+	var newList []string
+	for _, element := range contentList {
+		if element != "" {
+			newList = append(newList, element)
+		}
+	}
+	return newList
 }
 
 // 判断字符串在数组元素中是否包含
